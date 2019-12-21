@@ -1,4 +1,4 @@
 3
 images/Banner.jpg
-images/Rick.jpg
 images/ToxicRick.jpg
+images/Rick.jpg

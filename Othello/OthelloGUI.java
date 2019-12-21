@@ -78,14 +78,15 @@
       *         - iconFile
       */
       
-         iconFile = new String[2];
+         iconFile = new String[NUMPLAYER];
          
          try { 
             BufferedReader in = new BufferedReader(new FileReader(CONFIGFILE));
             MAXGAME = Integer.parseInt(in.readLine());
             logoIcon = in.readLine();
-            iconFile[0] = in.readLine();
-            iconFile[1] = in.readLine();
+            for (int i = 0; i < NUMPLAYER; i++) { 
+               iconFile[i] = in.readLine();
+            }
          } catch (IOException iox) { 
             System.out.println("Config file not found.");
          }
@@ -368,7 +369,7 @@
          OthelloGUI gui = new OthelloGUI ();
          Othello game = new Othello (gui);
          OthelloListener listener = new OthelloListener (game, gui);
-      
       }
+      
    
    }
