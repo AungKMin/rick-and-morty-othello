@@ -332,11 +332,6 @@ public class OthelloGUI {
         }
     }
 
-    public void addListener2(OthelloListener2 listener) { 
-         aiPlayerButton.addMouseListener(listener);
-    }
-
-
     /**
      * Display the specified player icon on the specified slot
      * 
