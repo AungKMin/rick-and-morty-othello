@@ -125,7 +125,7 @@ public class AI {
     private static int evaluatePosition(int[][] board) {
 
         int pieceDifference = evaluatePieceDifference(board); // The difference in how many pieces each player has
-        int specialPieceDifference = evaluateSpecialPieceDifference(board); // The difference in the additional values of each position 
+        int specialPieceDifference = evaluateSpecialPieceDifference(board); // The difference in the additional values of each piece
 
         int evaluation = pieceDifference + specialPieceDifference; // The overall evaluation
 
@@ -143,7 +143,8 @@ public class AI {
 
         int maximizingPlayerPieces = 0; // Number of maximizing-player pieces
         int nonMaximizingPlayerPieces = 0; // Number of non-maximizing-player pieces
-        for (int i = 0; i < NUMROW; i++) {
+
+        for (int i = 0; i < NUMROW; i++) { 
             for (int j = 0; j < NUMCOL; j++) {
                 if (board[i][j] == maximizingPlayer) {
                     maximizingPlayerPieces++;
@@ -152,18 +153,20 @@ public class AI {
                 }
             }
         }
-        //System.out.println("Piece difference: " + maximizingPlayerPieces + " - " + nonMaximizingPlayerPieces);
+
         return maximizingPlayerPieces - nonMaximizingPlayerPieces;
 
     }
 
     /* 
-     * Evaluate the difference in values of special pieces the maximizing player has over the minimizing player
+     * Evaluate the difference in additional values of special pieces the maximizing player has over the minimizing player
+     * @param  board  the state of the board
+     * @return how much the maximizing player is favored by the additional values of pieces
      */ 
     private static int evaluateSpecialPieceDifference(int[][] board) { 
 
-    	int maximizingPlayerSpecial = 0;
-    	int nonMaximizingPlayerSpecial = 0;
+    	int maximizingPlayerSpecial = 0; // Sum of additional values of maximizing-player pieces
+    	int nonMaximizingPlayerSpecial = 0; // Sum of additional values of non-maximizing-player pieces
 
     	// (Additional) values associated with positions
     	int[][] valueBoard = { 
@@ -231,16 +234,17 @@ public class AI {
      *
      * @param  board  the current position
      * @param  player  the current player
-     * @return an array of coordinates of all possible moves
+     * @return an array list of coordinates of all possible moves
      */
     private static ArrayList < int[] > allPossibleMoves(int[][] board, int player) {
 
+    	// All valid moves from the position
         ArrayList < int[] > moves = new ArrayList < int[] > ();
 
         for (int i = 0; i < NUMROW; i++) {
             for (int j = 0; j < NUMCOL; j++) {
-                if (validMove(board, i, j)) {
-                    moves.add(new int[] {i, j});
+                if (validMove(board, i, j)) { // if the move is valid,
+                    moves.add(new int[] {i, j}); // add it to the array of valid moves
                 }
             }
         }
@@ -249,7 +253,13 @@ public class AI {
 
     }
 
-
+   /*
+	* Determine whether a move is valid in the board position given
+	* 
+	* @param  board  the current position of the board
+	* @param  row  the row the desired move is on
+	* @param  col  the column the desired column is on
+	*/
     private static boolean validMove(int[][] board, int row, int col) {
 
         if (board[row][col] == INDICATOR) { // If the move is on an indicator
@@ -260,6 +270,14 @@ public class AI {
 
     }
 
+   /* 
+    * Determine the board position after a move is made on the current board position
+    * 
+    * @param  board  the current position of the board
+    * @param  curPlayer  the player that made the move
+    * @param  move  the move to be made
+    * @return the new state of the board
+    */
     private static int[][] boardAfterMove(int[][] board, int curPlayer, int[] move) {
 
     	// Set the variables for the coordinates
@@ -269,7 +287,7 @@ public class AI {
         // Set enemy player
         int enemy = (curPlayer + 1) % NUMPLAYER;
 
-
+        // Make a copy of the current board
         int[][] newBoard = new int[NUMROW][NUMCOL];
         for (int i = 0; i < NUMROW; i++) {
         	for (int j = 0; j < NUMCOL; j++) {
@@ -278,10 +296,10 @@ public class AI {
         }
         board = newBoard;
 
+        // Place a player piece on the move coordinates
         board[row][col] = curPlayer;
 
         // Flanks: 
-
         // Go right
         int counter = col + 1;
         while (counter < NUMCOL && board[row][counter] == enemy) { // Determine the coordinate at the end of the continuous line of enemy pieces
@@ -326,6 +344,8 @@ public class AI {
             }
         }
 
+        int numEnemies; // number of enemy pieces counted 
+
         // Go top left
         //    Coordinates of the slot at the end of the line of enemies
         int vertiCounter = row - 1;
@@ -335,10 +355,10 @@ public class AI {
             vertiCounter -= 1;
             horiCounter -= 1;
         }
-        int temp = row - vertiCounter - 1; // Number of enemy pieces counted (the number of pieces between the end and the beginning of the line)  
+        numEnemies = row - vertiCounter - 1; // Number of enemy pieces counted (the number of pieces between the end and the beginning of the line)  
         //    Outflank the line of enemies if surrounded          
         if (vertiCounter >= 0 && horiCounter >= 0 && board[vertiCounter][horiCounter] == curPlayer) { // Check if the end is a player piece 
-            for (int i = 1; i <= temp; i++) { // If so, flip the enemy pieces in the line
+            for (int i = 1; i <= numEnemies; i++) { // If so, flip the enemy pieces in the line
                 board[row - i][col - i] = curPlayer;
             }
         }
@@ -351,10 +371,10 @@ public class AI {
             vertiCounter -= 1;
             horiCounter += 1;
         }
-        temp = row - vertiCounter - 1;
+        numEnemies = row - vertiCounter - 1;
         //    Outflank the line of enemies if surrounded
         if (vertiCounter >= 0 && horiCounter < NUMCOL && board[vertiCounter][horiCounter] == curPlayer) {
-            for (int i = 1; i <= temp; i++) {
+            for (int i = 1; i <= numEnemies; i++) {
                 board[row - i][col + i] = curPlayer;
             }
         }
@@ -367,10 +387,10 @@ public class AI {
             vertiCounter += 1;
             horiCounter -= 1;
         }
-        temp = vertiCounter - row - 1;
+        numEnemies = vertiCounter - row - 1;
         //    Outflank the line of enemies if surrounded
         if (vertiCounter < NUMROW && horiCounter >= 0 && board[vertiCounter][horiCounter] == curPlayer) {
-            for (int i = 1; i <= temp; i++) {
+            for (int i = 1; i <= numEnemies; i++) {
                 board[row + i][col - i] = curPlayer;
             }
         }
@@ -383,10 +403,10 @@ public class AI {
             vertiCounter += 1;
             horiCounter += 1;
         }
-        temp = vertiCounter - row - 1;
+        numEnemies = vertiCounter - row - 1;
         //    Outflank the line of enemies if surrounded
         if (vertiCounter < NUMROW && horiCounter < NUMCOL && board[vertiCounter][horiCounter] == curPlayer) {
-            for (int i = 1; i <= temp; i++) {
+            for (int i = 1; i <= numEnemies; i++) {
                 board[row + i][col + i] = curPlayer;
             }
         }

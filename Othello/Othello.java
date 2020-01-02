@@ -340,7 +340,7 @@ public class Othello {
     private int flankDiag(int row, int col) {
 
         int numFlanks = 0;
-        int temp; // temporary variable to hold number of enemy pieces flanked
+        int numEnemies; // number of enemies
 
         // Set enemy player
         int enemy = (curPlayer + 1) % NUMPLAYER;
@@ -354,14 +354,14 @@ public class Othello {
             vertiCounter -= 1;
             horiCounter -= 1;
         }
-        temp = row - vertiCounter - 1; // Number of enemy pieces counted (the number of pieces between the end and the beginning of the line)  
+        numEnemies = row - vertiCounter - 1; // Number of enemy pieces counted (the number of pieces between the end and the beginning of the line)  
         //    Outflank the line of enemies if surrounded          
         if (vertiCounter >= 0 && horiCounter >= 0 && board[vertiCounter][horiCounter] == curPlayer) { // Check if the end is a player piece 
-            for (int i = 1; i <= temp; i++) { // If so, flip the enemy pieces in the line
+            for (int i = 1; i <= numEnemies; i++) { // If so, flip the enemy pieces in the line
                 gui.setPiece(row - i, col - i, curPlayer);
                 board[row - i][col - i] = curPlayer;
             }
-            numFlanks += temp; // Add the number of pieces flipped
+            numFlanks += numEnemies; // Add the number of pieces flipped
         }
 
         // Go top right
@@ -372,14 +372,14 @@ public class Othello {
             vertiCounter -= 1;
             horiCounter += 1;
         }
-        temp = row - vertiCounter - 1;
+        numEnemies = row - vertiCounter - 1;
         //    Outflank the line of enemies if surrounded
         if (vertiCounter >= 0 && horiCounter < NUMCOL && board[vertiCounter][horiCounter] == curPlayer) {
-            for (int i = 1; i <= temp; i++) {
+            for (int i = 1; i <= numEnemies; i++) {
                 gui.setPiece(row - i, col + i, curPlayer);
                 board[row - i][col + i] = curPlayer;
             }
-            numFlanks += temp;
+            numFlanks += numEnemies;
         }
 
         // Go bottom left
@@ -390,14 +390,14 @@ public class Othello {
             vertiCounter += 1;
             horiCounter -= 1;
         }
-        temp = vertiCounter - row - 1;
+        numEnemies = vertiCounter - row - 1;
         //    Outflank the line of enemies if surrounded
         if (vertiCounter < NUMROW && horiCounter >= 0 && board[vertiCounter][horiCounter] == curPlayer) {
-            for (int i = 1; i <= temp; i++) {
+            for (int i = 1; i <= numEnemies; i++) {
                 gui.setPiece(row + i, col - i, curPlayer);
                 board[row + i][col - i] = curPlayer;
             }
-            numFlanks += temp;
+            numFlanks += numEnemies;
         }
 
         // Go bottom right
@@ -408,14 +408,14 @@ public class Othello {
             vertiCounter += 1;
             horiCounter += 1;
         }
-        temp = vertiCounter - row - 1;
+        numEnemies = vertiCounter - row - 1;
         //    Outflank the line of enemies if surrounded
         if (vertiCounter < NUMROW && horiCounter < NUMCOL && board[vertiCounter][horiCounter] == curPlayer) {
-            for (int i = 1; i <= temp; i++) {
+            for (int i = 1; i <= numEnemies; i++) {
                 gui.setPiece(row + i, col + i, curPlayer);
                 board[row + i][col + i] = curPlayer;
             }
-            numFlanks += temp;
+            numFlanks += numEnemies;
         }
 
         return numFlanks;
