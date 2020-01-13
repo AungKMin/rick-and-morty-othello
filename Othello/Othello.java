@@ -1,11 +1,6 @@
 /* 
  * Othello.java
  * 
- * Student Author: Aung Khant Min
- * Teacher: Ms. Lam
- * Class: ICS3U1
- * Date: Januray 16, 2019
- * Description: 
  * This class represents a Othello game. 
  * The rules play like usual except for one change:
  * a valid move is any slot adjacent to an existing piece.
