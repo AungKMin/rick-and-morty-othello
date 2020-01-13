@@ -1,11 +1,6 @@
 /**
  * OthelloGUI.java
  *
- * Student Author: Aung Khant Min
- * Teacher Author: Ms. Lam
- * Class: ICS3U1
- * Date: Januray 16, 2019
- * Description: 
  * Provide the GUI for the Othello game
  */
 import javax.swing.*;
