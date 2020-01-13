@@ -1,6 +1,7 @@
-1
+3
 images/Banner.jpg
 images/ToxicRick.jpg
 images/Rick.jpg
 images/Indicator.png
 images/RobotRick.png
+images/RobotRickHard.png

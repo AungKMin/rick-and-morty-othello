@@ -1,6 +1,11 @@
 /**
  * OthelloGUI.java
  *
+ * Student Author: Aung Khant Min
+ * Teacher Author: Ms. Lam
+ * Class: ICS3U1
+ * Date: Januray 16, 2019
+ * Description: 
  * Provide the GUI for the Othello game
  */
 import javax.swing.*;
@@ -16,20 +21,27 @@ public class OthelloGUI {
     private JLabel[][] slots;
     private JFrame mainFrame;
     private JTextField[] playerScore;
+    private JTextField[] playerPoints;
     private ImageIcon[] playerIcon;
     private ImageIcon indicatorIcon;
     private ImageIcon computerIcon;
+    private ImageIcon computerIconHard;
     private JLabel nextPlayerIcon;
     private JButton aiPlayerButton;
+    private JButton aiPlayerButtonHard;
 
-    private Color background = new Color(100, 100, 100);
+    private Color background = new Color(20, 20, 20);
+    private Color textcolor = new Color(255, 255, 255);
 
+    // name of the file paths of images
     private String logoIcon;
     private String[] iconFile;
     private String indicatorIconFile;
     private String computerIconFile;
+    private String computerIconHardFile;
 
-    private final int DEPTH = 4; // The maxium depth that the minimax algorithm will search to
+    private final int DEPTH = 2; // The maxium depth that the ai's minimax algorithm will search to
+    private final int BIGDEPTH = 4; // The longer search depth for hard
 
     private Othello game;
 
@@ -75,12 +87,15 @@ public class OthelloGUI {
     private final int FRAMEWIDTH = (int)(LOGOWIDTH * 1.03);
     private final int FRAMEHEIGHT = (int)((LOGOHEIGHT + PLAYPANEHEIGHT) * 1.1);
 
-    // Constructor:  OthelloGUI
-    // - intialize variables from config files
-    // - initialize the imageIcon array
-    // - initialize the slots array
-    // - create the main frame
+    /** 
+     * Constructor: 
+     * intialize variables from config files
+     * initialize the imageIcon array
+     * initialize the slots array
+     * create the main frame
+     */ 
     public OthelloGUI() {
+    
         initConfig();
         initImageIcon();
         initSlots();
@@ -91,32 +106,32 @@ public class OthelloGUI {
 
     }
 
+    /**
+     * Initialize the file paths of the images and the number of games in a match
+     */ 
     private void initConfig() {
-        /* TO DO:  initialize the following variables with information read from the config file
-         *         - MAXGAME
-         *         - logoIcon
-         *         - iconFile
-         */
 
-        iconFile = new String[NUMPLAYER];
+        iconFile = new String[NUMPLAYER]; // The player icons
 
         try {
             BufferedReader in = new BufferedReader(new FileReader(CONFIGFILE));
-            MAXGAME = Integer.parseInt( in .readLine());
-            logoIcon = in .readLine();
+            MAXGAME = Integer.parseInt(in.readLine()); // The number of games a player needs to win to win the match
+            logoIcon = in.readLine(); // The banner
             for (int i = 0; i < NUMPLAYER; i++) {
-                iconFile[i] = in .readLine();
+                iconFile[i] = in.readLine();
             }
-            indicatorIconFile = in .readLine();
-            computerIconFile = in .readLine();
+            indicatorIconFile = in.readLine(); // the valid-move indicator image
+            computerIconFile = in.readLine(); // the computer's icon
+            computerIconHardFile = in.readLine(); // the harder computer's icon
         } catch (IOException iox) {
             System.out.println("Config file not found.");
         }
 
     }
 
-    // initImageIcon
-    // Initialize playerIcon arrays, indicatorIcon, and computerIcon with graphic files
+    /**
+     * Initialize playerIcon arrays, indicatorIcon, and computerIcon with graphic files 
+     */
     private void initImageIcon() {
         playerIcon = new ImageIcon[NUMPLAYER];
         for (int i = 0; i < NUMPLAYER; i++) {
@@ -124,10 +139,12 @@ public class OthelloGUI {
         }
         indicatorIcon = new ImageIcon(indicatorIconFile);
         computerIcon = new ImageIcon(computerIconFile);
+        computerIconHard = new ImageIcon(computerIconHardFile);
     }
 
-    // initSlots
-    // initialize the array of JLabels
+    /**
+     * Initialize the array of JLabels
+     */ 
     private void initSlots() {
         slots = new JLabel[NUMROW][NUMCOL];
         for (int i = 0; i < NUMROW; i++) {
@@ -141,7 +158,9 @@ public class OthelloGUI {
         }
     }
 
-    // createPlayPanel
+    /**
+     * Create play panel
+     */
     private JPanel createPlayPanel() {
         JPanel panel = new JPanel();
         panel.setPreferredSize(new Dimension(PLAYPANEWIDTH, PLAYPANEHEIGHT));
@@ -155,7 +174,9 @@ public class OthelloGUI {
         return panel;
     }
 
-    // createInfoPanel
+    /**
+     * Create info panel
+     */
     private JPanel createInfoPanel() {
 
         JPanel panel = new JPanel();
@@ -173,8 +194,8 @@ public class OthelloGUI {
         // Create the label to display "SCOREBOARD" heading
         JLabel scoreLabel = new JLabel("SCOREBOARD", JLabel.CENTER);
         scoreLabel.setFont(headingFont);
+        scoreLabel.setForeground(textcolor);
         scoreLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        //scoreLabel.setForeground(Color.white);
 
         // Create JLabels for players
         JLabel[] playerLabel = new JLabel[NUMPLAYER];
@@ -190,22 +211,40 @@ public class OthelloGUI {
             playerScore[i].setText("0");
             playerScore[i].setEditable(false);
             playerScore[i].setHorizontalAlignment(JTextField.CENTER);
-            playerScore[i].setPreferredSize(new Dimension(INFOPANEWIDTH - PIECESIZE - 10, 30));
-            playerScore[i].setBackground(background);
+            playerScore[i].setPreferredSize(new Dimension(INFOPANEWIDTH - PIECESIZE - 50, 30));
         }
+        
+        // Create the array of textfield for players' points
+        playerPoints = new JTextField[NUMPLAYER];
+        for (int i = 0; i < NUMPLAYER; i++) {
+            playerPoints[i] = new JTextField();
+            playerPoints[i].setFont(regularFont);
+            playerPoints[i].setText("0");
+            playerPoints[i].setEditable(false);
+            playerPoints[i].setHorizontalAlignment(JTextField.CENTER);
+            playerPoints[i].setPreferredSize(new Dimension(INFOPANEWIDTH - PIECESIZE - 50, 30));
+        }      
 
         scorePanel.add(scoreLabel);
-        for (int i = 0; i < NUMPLAYER; i++) {
-            scorePanel.add(playerLabel[i]);
-            scorePanel.add(playerScore[i]);
+        
+        // Create the JPanels for the score panels consisting of the player icon, match score, and the number of pieces of each player
+        JPanel[] playerScoreBoards = new JPanel[NUMPLAYER];
+        for (int i = 0; i < NUMPLAYER; i++) { 
+            playerScoreBoards[i] = new JPanel();
+            playerScoreBoards[i].add(playerLabel[i]);
+            playerScoreBoards[i].add(playerScore[i]);
+            playerScoreBoards[i].add(playerPoints[i]);
+            playerScoreBoards[i].setBackground(background);
+            scorePanel.add(playerScoreBoards[i]);
         }
-
+       
         JPanel nextPanel = new JPanel();
         nextPanel.setBackground(background);
 
         // Create the label to display "NEXT TURN" heading
         JLabel nextLabel = new JLabel("NEXT TURN", JLabel.CENTER);
         nextLabel.setFont(headingFont);
+        nextLabel.setForeground(textcolor);
         nextLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         //nextLabel.setForeground(Color.white);
 
@@ -224,37 +263,73 @@ public class OthelloGUI {
         // Create the JLabel for the Computer heading
         JLabel aiLabel = new JLabel("COMPUTER", JLabel.CENTER);
         aiLabel.setFont(headingFont);
+        aiLabel.setForeground(textcolor);
         aiLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // Create the JButton to let the AI play for the current player
         aiPlayerButton = new JButton(computerIcon);
         aiPlayerButton.setPreferredSize(new Dimension(PIECESIZE, PIECESIZE));
-        //aiPlayerButton.setIcon(playerIcon[0]);
         // Set up the action handler for the JButton
         aiPlayerButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+
+               // Get the number of pieces on the board
                int[] points = game.getPoints();
                int pointSum = 0;
                for (int i = 0; i < NUMPLAYER; i++) { 
                   pointSum += points[i];
                }
+
+               // Set the depth to the desired depth or the number of empty slots left
                int depth = Math.min(DEPTH, AREA - pointSum);
+               // Get the current state of the board
                int[][] board = game.getBoard();
+               // Call the ai to make a move and play the move
                game.play(AI.makeMove(game.getBoard(), game.currentPlayer(), depth));
+
+            }
+        });
+        
+        // Harder AI (searches deeper)
+        // Create the JButton to let the AI play for the current player
+        aiPlayerButtonHard = new JButton(computerIconHard);
+        aiPlayerButtonHard.setPreferredSize(new Dimension(PIECESIZE, PIECESIZE));
+        // Set up the action handler for the JButton
+        aiPlayerButtonHard.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+
+               // Get the number of pieces on the board
+               int[] points = game.getPoints();
+               int pointSum = 0;
+               for (int i = 0; i < NUMPLAYER; i++) { 
+                  pointSum += points[i];
+               }
+
+               // Set the depth to the desired depth or the number of empty slots left
+               int depth = Math.min(BIGDEPTH, AREA - pointSum);
+               // Get the current state of the board
+               int[][] board = game.getBoard();
+               // Call the ai to make a move and play the move
+               game.play(AI.makeMove(game.getBoard(), game.currentPlayer(), depth));
+
             }
         });
 
         aiPanel.add(aiLabel);
         aiPanel.add(aiPlayerButton);
+        aiPanel.add(aiPlayerButtonHard);
 
-        panel.add(aiPanel);
         panel.add(scorePanel);
         panel.add(nextPanel);
+        panel.add(aiPanel);
 
         return panel;
+
     }
 
-    // createMainFrame
+    /**
+     * create the main frame
+     */
     private void createMainFrame() {
 
         // Create the main Frame
@@ -286,15 +361,17 @@ public class OthelloGUI {
         mainFrame.setVisible(true);
 
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
     }
 
     /**
-     * Returns the column number of where the given JLabel is on
+     * Returns the row number of where the given JLabel is on
      * 
-     * @param  label the label whose column number to be requested
-     * @return the column number
+     * @param  label  the label whose row number to be requested
+     * @return the row number
      */
     public int getRow(JLabel label) {
+
         int result = -1;
         for (int i = 0; i < NUMROW && result == -1; i++) {
             for (int j = 0; j < NUMCOL && result == -1; j++) {
@@ -304,15 +381,17 @@ public class OthelloGUI {
             }
         }
         return result;
+
     }
 
     /**
      * Returns the column number of where the given JLabel is on
      * 
-     * @param  label the label whose column number to be requested
+     * @param  label  the label whose column number to be requested
      * @return the column number
      */
     public int getColumn(JLabel label) {
+
         int result = -1;
         for (int i = 0; i < NUMROW && result == -1; i++) {
             for (int j = 0; j < NUMCOL && result == -1; j++) {
@@ -322,111 +401,154 @@ public class OthelloGUI {
             }
         }
         return result;
+
     }
 
+    /**
+     * Add the mouse listener 
+     */
     public void addListener(OthelloListener listener) {
+
         for (int i = 0; i < NUMROW; i++) {
             for (int j = 0; j < NUMCOL; j++) {
                 slots[i][j].addMouseListener(listener);
             }
         }
+
     }
 
     /**
      * Display the specified player icon on the specified slot
      * 
-     * @param row row of the slot
-     * @param col column of the slot
-     * @param player player to be displayed
+     * @param  row  row of the slot
+     * @param  col  column of the slot
+     * @param  player  player to be displayed
      */
     public void setPiece(int row, int col, int player) {
+
         slots[row][col].setIcon(playerIcon[player]);
+
+    }
+
+    /**
+     * Display an indicator icon on the specified slot
+     * @param  row  the row of the specified slot
+     * @param  col  the column of the specified slot
+     */
+    public void setIndicator(int row, int col) {
+
+        slots[row][col].setIcon(indicatorIcon);
+    
     }
 
     /**
      * Display the score on the textfield of the corresponding player
      * 
-     * @param player the player whose score to be displayed
-     * @param score the score to be displayed
+     * @param  player  the player whose score to be displayed
+     * @param  score  the score to be displayed
      */
     public void setPlayerScore(int player, int score) {
+
         playerScore[player].setText(score + "");
+
+    }
+
+   /**
+    * Display the points on the textfield of the corresponding player
+    * 
+    * @param  player  the player whose points are to be displayed
+    * @param  points  the points to be displayed
+    */
+    public void setPlayerPoints(int player, int points) { 
+
+        playerPoints[player].setText(points + "");
+
     }
 
     /**
      * Display the appropriate player icon under"Next Turn"
      * 
-     * @param player the player number of the next player; its corresponding icon will be displayed under "Next Turn"
+     * @param  player  the player number of the next player; its corresponding icon will be displayed under "Next Turn"
      */
     public void setNextPlayer(int player) {
+
         nextPlayerIcon.setIcon(playerIcon[player]);
+
     }
 
     /**
      * Reset the game board (clear all the pieces on the game board)
-     * 
      */
     public void resetGameBoard() {
+
         for (int i = 0; i < NUMROW; i++) {
             for (int j = 0; j < NUMCOL; j++) {
                 slots[i][j].setIcon(null);
             }
         }
+
     }
 
     /**
      * Display a pop up window displaying the message about invalid move
-     * 
      */
     public void showInvalidMoveMessage() {
+
         JOptionPane.showMessageDialog(null, " This move is invalid", "Invalid Move", JOptionPane.PLAIN_MESSAGE, null);
+
     }
 
     /**
      * Display a pop up window specifying the number of opponents that was outflanked
      * 
-     * @param player the player number who has outflanked opponents
-     * @param outflank the number of opponents that were outflanked
+     * @param  player  the player number who has outflanked opponents
+     * @param  outflank  the number of opponents that were outflanked
      */
     public void showOutflankMessage(int player, int outflank) {
+
         JOptionPane.showMessageDialog(null, " outflanked " + outflank + " opponents.", "OutFlank!", JOptionPane.PLAIN_MESSAGE, playerIcon[player]);
+
     }
 
     /**
      * Display a pop up window displaying the message about a tie game
-     * 
      */
     public void showTieGameMessage() {
+
         JOptionPane.showMessageDialog(null, " This game is tie.", "Tie Game", JOptionPane.PLAIN_MESSAGE, null);
+
     }
 
     /**
      * Display a pop up window specifying the winner of this game
      * 
-     * @param player the player number of the winner of the game
+     * @param  player  the player number of the winner of the game
      */
     public void showWinnerMessage(int player) {
+
         JOptionPane.showMessageDialog(null, " won this game!", "This game has a winner!", JOptionPane.PLAIN_MESSAGE, playerIcon[player]);
+
     }
 
     /**
      * Display a pop up window specifying the winner of the match
      * 
-     * @param player the player number of the winner of the match
+     * @param  player  the player number of the winner of the match
      */
     public void showFinalWinnerMessage(int player) {
+
         JOptionPane.showMessageDialog(null, " won the match with " + MAXGAME + " wins", "The match is finished", JOptionPane.PLAIN_MESSAGE, playerIcon[player]);
         System.exit(0);
+
     }
 
-    // I added
-    public void setIndicator(int row, int col) {
-        slots[row][col].setIcon(indicatorIcon);
-    }
-
-
+    /**
+     * Create an OthelloGUI
+     */ 
     public static void main(String[] args) {
+
         OthelloGUI gui = new OthelloGUI();
+
     }
 
 }

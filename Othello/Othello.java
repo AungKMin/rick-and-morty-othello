@@ -18,7 +18,7 @@ public class Othello {
     final int NUMPLAYER; // number of players in the game
     final int NUMROW; // number of rows in the game board
     final int NUMCOL; // number of columns in the game board
-    final int AREA;
+    final int AREA; // number of slots on the board
     final int INDICATOR = -2; // represents a valid-move indicator on the game board
     final int EMPTY = -1; // represents an empty square on the game board   
     final int PLAYER1 = 0; // identification of player 1
@@ -40,7 +40,7 @@ public class Othello {
      * the number of players, the dimensions of the board, a representation of the board, 
      * and the coordinates of the initial points
      * 
-     * @param  gui  the gui that will be the graphical interface of the game
+     * @param  gui  the gui object that will be the graphical interface of the game
      */
     public Othello(OthelloGUI gui) {
 
@@ -77,6 +77,7 @@ public class Othello {
         score = new int[NUMPLAYER];
         points = new int[NUMPLAYER];
 
+        // Start a match
         newMatch();
 
     }
@@ -108,6 +109,7 @@ public class Othello {
         // Set the points to 0
         for (int i = 0; i < NUMPLAYER; i++) {
             points[i] = 0;
+            gui.setPlayerPoints(i, 0);
         }
 
         // Increase the points based on how many pieces each player starts out with
@@ -140,43 +142,6 @@ public class Othello {
             updateIndicators(INITIALROWCORDS[i], INITIALCOLCORDS[i]);
         }
 
-        /* The tie tester   
-        board[0][0] = PLAYER2;
-        gui.setPiece(0, 0, PLAYER2);
-        for (int i = 1; i < NUMCOL; i++) {    
-           board[0][i] = PLAYER1;
-           gui.setPiece(0, i, PLAYER1);
-        }
-        for (int i = 1; i < NUMROW; i++) { 
-           board[i][0] = PLAYER1;
-           gui.setPiece(i, 0, PLAYER1);
-        }
-        for (int i = 1; i < NUMCOL - 1; i++) { 
-           board[NUMROW - 1][i] = PLAYER1;
-           gui.setPiece(NUMROW - 1, i, PLAYER1);
-        }
-        for (int i = 1; i < NUMROW - 1; i++) {
-           board[i][NUMCOL - 1] = PLAYER1; 
-           gui.setPiece(i, NUMCOL - 1, PLAYER1);
-        }
-        for (int i = 1; i < NUMROW - 2; i++ ) {
-           for (int j = 1; j < NUMCOL - 1; j++) { 
-              board[i][j] = PLAYER2;
-              gui.setPiece(i, j, PLAYER2);
-           }
-        }
-        for (int i = 1; i < 6; i++) { 
-           board[NUMROW - 2][i] = PLAYER1;
-           gui.setPiece(NUMROW - 2, i, PLAYER1);
-        } 
-        for (int i = 6; i < NUMCOL - 1; i++) {
-           board[NUMROW - 2][i] = PLAYER2;
-           gui.setPiece(NUMROW - 2, i, PLAYER2);          
-        }
-      
-        points[PLAYER1] = 31;
-        points[PLAYER2] = 32;
-        */
     }
 
     /**
@@ -189,10 +154,11 @@ public class Othello {
          
         if (board[row][col] == INDICATOR) { // If the move is on an indicator
             return true; // the move is valid
-        } else {
-            gui.showInvalidMoveMessage(); // else, it is invalid
+        } else { // else, it is invalid
+            gui.showInvalidMoveMessage(); 
             return false;
         }
+
     }
 
     /**
@@ -219,6 +185,7 @@ public class Othello {
      * Outflank any appropriate enemy pieces. 
      * Update the board graphically and in the array. 
      * Display a textbox saying how many pieces were outflanked.
+     * Update the player point scores with the flanks
      * 
      * @param  row  the row number
      * @param  col  the column number
@@ -255,7 +222,7 @@ public class Othello {
         int enemy = (curPlayer + 1) % NUMPLAYER;
 
         // Go right
-        int counter = col + 1;
+        int counter = col + 1; // Keep track of the continuous line of enemy ieces
         while (counter < NUMCOL && board[row][counter] == enemy) { // Determine the coordinate at the end of the continuous line of enemy pieces
             counter += 1;
         }
@@ -294,13 +261,14 @@ public class Othello {
      */
     private int flankVerti(int row, int col) {
 
+        // The number of flanks counted
         int numFlanks = 0;
 
         // Set enemy player
         int enemy = (curPlayer + 1) % NUMPLAYER;
 
-        // Go up
-        int counter = row + 1;
+        // Go down
+        int counter = row + 1; // Keep track of the continuous line of enemy pieces
         while (counter < NUMROW && board[counter][col] == enemy) { // Determine the coordinate at the end of the continuous line of enemy pieces
             counter += 1;
         }
@@ -312,7 +280,7 @@ public class Othello {
             numFlanks += counter - row - 1; // The number of pieces flipped (number of pieces between the end of the line and the beginning)
         }
 
-        // Go down
+        // Go up
         counter = row - 1;
         while (counter >= 0 && board[counter][col] == enemy) {
             counter -= 1;
@@ -354,7 +322,8 @@ public class Othello {
             vertiCounter -= 1;
             horiCounter -= 1;
         }
-        numEnemies = row - vertiCounter - 1; // Number of enemy pieces counted (the number of pieces between the end and the beginning of the line)  
+        // Number of enemy pieces counted (the number of pieces between the end and the beginning of the line)  
+        numEnemies = row - vertiCounter - 1; 
         //    Outflank the line of enemies if surrounded          
         if (vertiCounter >= 0 && horiCounter >= 0 && board[vertiCounter][horiCounter] == curPlayer) { // Check if the end is a player piece 
             for (int i = 1; i <= numEnemies; i++) { // If so, flip the enemy pieces in the line
@@ -423,7 +392,7 @@ public class Othello {
     }
 
     /** 
-     * Update the scores. 
+     * Update the player point scores.
      * 
      * @param piecesTurnedOver the number of pieces turned over
      */
@@ -435,6 +404,11 @@ public class Othello {
             points[PLAYER2] -= piecesTurnedOver;
         } else {
             points[PLAYER1] -= piecesTurnedOver;
+        }
+        
+        // Update the players' points displayed
+        for (int i = PLAYER1; i < NUMPLAYER; i++) { 
+            gui.setPlayerPoints(i, points[i]);
         }
 
     }
@@ -448,7 +422,7 @@ public class Othello {
 
         // Find out the number of slots occupied by a player
         int sumPoints = 0;
-        for (int i = 0; i < NUMPLAYER; i++) {
+        for (int i = PLAYER1; i < NUMPLAYER; i++) {
             sumPoints += points[i];
         }
 
@@ -473,7 +447,7 @@ public class Othello {
             if (numTies > 0) {
                 tiedPlayers = new int[numTies + 1];
                 int counter = 0; // Current index of tiedPlayers
-                //    All players who have the highest number of points are tied
+                // All players who have the highest number of points are tied
                 for (int i = PLAYER1; i < NUMPLAYER; i++) {
                     if (points[i] == highestPoints) {
                         tiedPlayers[counter] = i;
@@ -483,7 +457,7 @@ public class Othello {
             }
 
             // Update the match scores and displays as appropriate
-            if (numTies > 0) { // If there is at a tie
+            if (numTies > 0) { // If there is a tie
                 gui.showTieGameMessage(); // show tie message
             } else { // If not, 
                 gui.showWinnerMessage(highestPlayer); // show winner message
@@ -572,20 +546,24 @@ public class Othello {
      * @return the current player
      */
     public int currentPlayer() {
+    
         return curPlayer;
+        
     }
 
     /**
-     * Gives the current scores of the players
+     * Gives the current scores of the players as an array
      *
-     * @return the scores of the players
+     * @return the scores of the players as an array on NUMPLAYER length
      */
     public int[] getPoints() { 
+    
         int[] newPoints = new int[NUMPLAYER];
         for (int i = 0; i < NUMPLAYER; i++) { 
             newPoints[i] = points[i];
         } 
         return newPoints;
+        
     }
 
     /**
@@ -594,6 +572,7 @@ public class Othello {
      * @return the state of the board
      */
     public int[][] getBoard() {
+    
         int[][] newBoard = new int[NUMROW][NUMCOL];
         for (int i = 0; i < NUMROW; i++) { 
             for (int j = 0; j < NUMCOL; j++) { 
@@ -601,6 +580,7 @@ public class Othello {
             }
         } 
         return newBoard;
+        
     }
 
     /**
@@ -622,15 +602,5 @@ public class Othello {
         }
 
     }
-
-    /*  DELETE AFTER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-       public void runnerCode(int fat, int skinny) { 
-          for (int i = 0; i < NUMROW; i++) { 
-             for (int j = 0; j < NUMCOL; j++) { 
-                play(i, j);
-             }
-          }
-          
-       }
-    */
+    
 }
