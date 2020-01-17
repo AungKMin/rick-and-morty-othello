@@ -1,8 +1,23 @@
 /**
  * OthelloGUI.java
  *
+ * Student Author: Aung Khant Min
+ * Teacher Author: Ms. Lam
+ * Class: ICS3U1
+ * Date: Januray 16, 2019
+ * Description: 
  * Provide the GUI for the Othello game
+ * The main features include the play frame, the info frame, and the banner.
+ * The info frame includes the AI buttons, the scoreboards of the players, and the next player.
+ * Also handles the displaying of the messages for outflanks, wins, ties, losses, and end of match
+ * Please refer to README.txt for all the extras
+ * The extras in this class: 
+ *  AI buttons
+ *  The resizibility of the pieces on the game board, and the banner
+ *  The valid-move indicators
+ *  Extended scoreboard
  */
+
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
@@ -10,20 +25,29 @@ import java.awt.event.*;
 import java.io.*;
 
 public class OthelloGUI {
+
+    final int INDICATOR; // represents a valid-move indicator on the game board
+    final int EMPTY; // represents an empty square on the game board   
+    final int PLAYER1; // identification of player 1
+    final int PLAYER2; // identification of player 2
+    
     // the name of the configuration file
     private final String CONFIGFILE = "config.txt";
 
     private JLabel[][] slots;
     private JFrame mainFrame;
     private JTextField[] playerScore;
-    private JTextField[] playerPoints;
-    private ImageIcon[] playerIcon;
-    private ImageIcon indicatorIcon;
-    private ImageIcon computerIcon;
-    private ImageIcon computerIconHard;
+    private JTextField[] playerPoints; 
+    private ImageIcon[] playerIcon; // Icons for players
+    private ImageIcon indicatorIcon; // Icon for indicators 
+    private ImageIcon[] playerIconVariable; // A size-variable version
+    private ImageIcon indicatorIconVariable; // A size-variable version
+    private ImageIcon computerIcon; // Icon for computer
+    private ImageIcon computerIconHard; // Icon for the hard computer
     private JLabel nextPlayerIcon;
-    private JButton aiPlayerButton;
-    private JButton aiPlayerButtonHard;
+
+    private JButton aiPlayerButton; // AI buton 
+    private JButton aiPlayerButtonHard; // Hard AI Button
 
     private Color background = new Color(20, 20, 20);
     private Color textcolor = new Color(255, 255, 255);
@@ -88,6 +112,7 @@ public class OthelloGUI {
      * initialize the imageIcon array
      * initialize the slots array
      * create the main frame
+     * initialize the identifiers
      */ 
     public OthelloGUI() {
     
@@ -96,8 +121,12 @@ public class OthelloGUI {
         initSlots();
         createMainFrame();
 
-        game = new Othello(this);
-        OthelloListener listener = new OthelloListener(game, this);
+        game = new Othello(this); // Create the game
+        INDICATOR = game.INDICATOR; // represents a valid-move indicator on the game board
+        EMPTY = game.EMPTY; // represents an empty square on the game board   
+        PLAYER1 = game.PLAYER1; // identification of player 1
+        PLAYER2 = game.PLAYER2; // identification of player 2
+        OthelloListener listener = new OthelloListener(game, this); // Create the listener
 
     }
 
@@ -108,6 +137,7 @@ public class OthelloGUI {
 
         iconFile = new String[NUMPLAYER]; // The player icons
 
+        // Read in the file paths
         try {
             BufferedReader in = new BufferedReader(new FileReader(CONFIGFILE));
             MAXGAME = Integer.parseInt(in.readLine()); // The number of games a player needs to win to win the match
@@ -118,6 +148,7 @@ public class OthelloGUI {
             indicatorIconFile = in.readLine(); // the valid-move indicator image
             computerIconFile = in.readLine(); // the computer's icon
             computerIconHardFile = in.readLine(); // the harder computer's icon
+            in.close();
         } catch (IOException iox) {
             System.out.println("Config file not found.");
         }
@@ -128,13 +159,18 @@ public class OthelloGUI {
      * Initialize playerIcon arrays, indicatorIcon, and computerIcon with graphic files 
      */
     private void initImageIcon() {
-        playerIcon = new ImageIcon[NUMPLAYER];
+    
+        playerIcon = new ImageIcon[NUMPLAYER]; // Set the player icon
+        playerIconVariable = new ImageIcon[NUMPLAYER]; // Set the size-variable icon too
         for (int i = 0; i < NUMPLAYER; i++) {
             playerIcon[i] = new ImageIcon(iconFile[i]);
+            playerIconVariable = new ImageIcon[NUMPLAYER];
         }
-        indicatorIcon = new ImageIcon(indicatorIconFile);
+        indicatorIcon = new ImageIcon(indicatorIconFile); // Set the indicator icon
+        indicatorIconVariable = new ImageIcon(indicatorIconFile); // Set the variable indicator icon
         computerIcon = new ImageIcon(computerIconFile);
         computerIconHard = new ImageIcon(computerIconHardFile);
+        
     }
 
     /**
@@ -145,7 +181,7 @@ public class OthelloGUI {
         for (int i = 0; i < NUMROW; i++) {
             for (int j = 0; j < NUMCOL; j++) {
                 slots[i][j] = new JLabel();
-                // slots[i][j].setFont(new Font("SansSerif", Font.BOLD, 18));
+                slots[i][j].setFont(new Font("SansSerif", Font.BOLD, 18));
                 slots[i][j].setPreferredSize(new Dimension(PIECESIZE, PIECESIZE));
                 slots[i][j].setHorizontalAlignment(SwingConstants.CENTER);
                 slots[i][j].setBorder(new LineBorder(Color.white));
@@ -157,7 +193,56 @@ public class OthelloGUI {
      * Create play panel
      */
     private JPanel createPlayPanel() {
+
         JPanel panel = new JPanel();
+        
+        // Add a component listener to resize the playing pieces
+        panel.addComponentListener(new ComponentListener() {
+
+            public void componentResized(ComponentEvent e) {
+
+               // Get the size of the play panel
+               Rectangle r = panel.getBounds();
+               int side = Math.min(r.height, r.width)/NUMROW;
+
+               // Set the player icons sizes
+               for (int i = 0; i < NUMPLAYER; i++) { 
+                  Image image = playerIcon[i].getImage(); // get the image from the reference icon
+                  Image newimg = image.getScaledInstance(side, side, java.awt.Image.SCALE_SMOOTH); // scale the image
+                  playerIconVariable[i] = new ImageIcon(newimg);  // set the image in the icon
+               }
+               
+               // Set the indicator icon size
+               Image image = indicatorIcon.getImage();
+               Image newimg = image.getScaledInstance(side, side, java.awt.Image.SCALE_SMOOTH);  
+               indicatorIconVariable = new ImageIcon(newimg);          
+               
+               int[][] board = game.getBoard();
+               
+               // Reset all the play pieces
+               for (int i = 0; i < NUMROW; i++) { 
+                  for (int j = 0; j < NUMCOL; j++) { 
+                     if (board[i][j] == PLAYER1) { 
+                        slots[i][j].setIcon(playerIconVariable[0]);
+                     } else if (board[i][j] == PLAYER2) { 
+                        slots[i][j].setIcon(playerIconVariable[1]);
+                     } else if (board[i][j] == INDICATOR) { 
+                        slots[i][j].setIcon(indicatorIconVariable);
+                     }
+                  }
+               }
+               
+            }
+            
+            // Unused methods
+            public void componentMoved(ComponentEvent e) {}
+            
+            public void componentShown(ComponentEvent e) {}
+            
+            public void componentHidden(ComponentEvent e) {}
+
+        });
+        
         panel.setPreferredSize(new Dimension(PLAYPANEWIDTH, PLAYPANEHEIGHT));
         panel.setBackground(background);
         panel.setLayout(new GridLayout(NUMROW, NUMCOL));
@@ -167,6 +252,7 @@ public class OthelloGUI {
             }
         }
         return panel;
+        
     }
 
     /**
@@ -252,20 +338,21 @@ public class OthelloGUI {
         nextPanel.add(nextLabel);
         nextPanel.add(nextPlayerIcon);
 
-        JPanel aiPanel = new JPanel();
+        JPanel aiPanel = new JPanel(); // AI panel
         aiPanel.setBackground(background);
 
         // Create the JLabel for the Computer heading
-        JLabel aiLabel = new JLabel("COMPUTER", JLabel.CENTER);
-        aiLabel.setFont(headingFont);
-        aiLabel.setForeground(textcolor);
-        aiLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JLabel aiLabel = new JLabel("COMPUTER", JLabel.CENTER); // Computer heading
+        aiLabel.setFont(headingFont); // Set font
+        aiLabel.setForeground(textcolor); // Set text color
+        aiLabel.setAlignmentX(Component.CENTER_ALIGNMENT); // Align in middle
 
         // Create the JButton to let the AI play for the current player
         aiPlayerButton = new JButton(computerIcon);
         aiPlayerButton.setPreferredSize(new Dimension(PIECESIZE, PIECESIZE));
         // Set up the action handler for the JButton
         aiPlayerButton.addActionListener(new ActionListener() {
+
             public void actionPerformed(ActionEvent e) {
 
                // Get the number of pieces on the board
@@ -283,6 +370,7 @@ public class OthelloGUI {
                game.play(AI.makeMove(game.getBoard(), game.currentPlayer(), depth));
 
             }
+
         });
         
         // Harder AI (searches deeper)
@@ -310,13 +398,13 @@ public class OthelloGUI {
             }
         });
 
-        aiPanel.add(aiLabel);
-        aiPanel.add(aiPlayerButton);
-        aiPanel.add(aiPlayerButtonHard);
+        aiPanel.add(aiLabel); // Add computer label
+        aiPanel.add(aiPlayerButton); // Add the button
+        aiPanel.add(aiPlayerButtonHard); // Add the hard button
 
-        panel.add(scorePanel);
-        panel.add(nextPanel);
-        panel.add(aiPanel);
+        panel.add(scorePanel); // Add the score panel
+        panel.add(nextPanel); // Add the next panel
+        panel.add(aiPanel); // Add the ai panel
 
         return panel;
 
@@ -338,6 +426,33 @@ public class OthelloGUI {
         JLabel logo = new JLabel();
         logo.setIcon(new ImageIcon(logoIcon));
         logoPane.add(logo);
+        
+        // Add a component listener to resize the banner
+        logoPane.addComponentListener(new ComponentListener() {
+
+            public void componentResized(ComponentEvent e) {
+
+               // Get the size of the panel
+               Rectangle r = logoPane.getBounds();
+               int height = r.height;
+               int width = r.width;
+
+               // Set the banner size
+               ImageIcon newIcon = new ImageIcon(logoIcon); // make a new image icon
+               Image image = newIcon.getImage(); // get the image from the reference icon
+               Image newimg = image.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH); // scale the image 
+               logo.setIcon(new ImageIcon(newimg)); // set the image in the icon  
+               
+            }
+            
+            // Unused methods
+            public void componentMoved(ComponentEvent e) {}
+            
+            public void componentShown(ComponentEvent e) {}
+            
+            public void componentHidden(ComponentEvent e) {}
+
+        });
 
         // Create the bottom Panel which contains the play panel and info Panel
         JPanel bottomPane = new JPanel();
@@ -421,7 +536,7 @@ public class OthelloGUI {
      */
     public void setPiece(int row, int col, int player) {
 
-        slots[row][col].setIcon(playerIcon[player]);
+        slots[row][col].setIcon(playerIconVariable[player]);
 
     }
 
@@ -432,7 +547,7 @@ public class OthelloGUI {
      */
     public void setIndicator(int row, int col) {
 
-        slots[row][col].setIcon(indicatorIcon);
+        slots[row][col].setIcon(indicatorIconVariable); // Display the icon
     
     }
 
@@ -444,7 +559,7 @@ public class OthelloGUI {
      */
     public void setPlayerScore(int player, int score) {
 
-        playerScore[player].setText(score + "");
+        playerScore[player].setText(score + ""); // Change display's score
 
     }
 
@@ -456,7 +571,7 @@ public class OthelloGUI {
     */
     public void setPlayerPoints(int player, int points) { 
 
-        playerPoints[player].setText(points + "");
+        playerPoints[player].setText(points + ""); // Change display's points
 
     }
 

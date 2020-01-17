@@ -1,6 +1,11 @@
 /* 
  * AI.java
  * 
+ * Student Author: Aung Khant Min
+ * Teacher: Ms. Lam
+ * Class: ICS3U1
+ * Date: Januray 16, 2019
+ * Description: 
  * This class contains the methods to make the game bot work. 
  * The bot uses the minimax search algorithm with alpha-beta pruning with a custom evaluator to find the best move. 
  * The evaluation of each position are based on: 
