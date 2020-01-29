@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Extras: 
 
 In the scoreboard, the first number represents the number of games the player has won and the second number
@@ -13,3 +14,7 @@ The "hard" button runs the algorithm with deeper search depth than the normal bu
 
 
 Note that a tie can be created (by coincidence) by repeatedly clicking on the normal computer button.
+=======
+This is an Othello game implementation with a GUI. It includes a bot that uses a minimax algorithm with alpha-beta pruning.
+Run OthelloGUI.java to run the program. 
+>>>>>>> dd52830422aba3306e74e36e5cf07a2d3848b009
