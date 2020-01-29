@@ -26,6 +26,7 @@ public class OthelloGUI {
     private JLabel[][] slots; 
     private JFrame mainFrame;
     private JTextField[] playerScore;
+
     private JTextField[] playerPoints; // Textfields for the player points
     private ImageIcon[] playerIcon; // Icons for players
     private ImageIcon indicatorIcon; // Icon for indicators 
@@ -33,8 +34,8 @@ public class OthelloGUI {
     private ImageIcon indicatorIconVariable; // A size-variable version
     private ImageIcon computerIcon; // Icon for computer
     private ImageIcon computerIconHard; // Icon for the hard computer
-    private JLabel nextPlayerIcon; // Icon for the next player
 
+    private JLabel nextPlayerIcon; // Icon for the next player
     private JButton aiPlayerButton; // AI buton 
     private JButton aiPlayerButtonHard; // Hard AI Button
 
@@ -385,7 +386,16 @@ public class OthelloGUI {
                game.play(AI.makeMove(game.getBoard(), game.currentPlayer(), depth));
 
             }
+
         });
+        
+        // Harder AI (searches deeper)
+        // Create the JButton to let the AI play for the current player
+        aiPlayerButtonHard = new JButton(computerIconHard);
+        aiPlayerButtonHard.setPreferredSize(new Dimension(PIECESIZE, PIECESIZE));
+        // Set up the action handler for the JButton
+        aiPlayerButtonHard.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
 
         aiPanel.add(aiLabel); // Add computer label
         aiPanel.add(aiPlayerButton); // Add the button
