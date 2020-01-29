@@ -1,33 +1,28 @@
 /* 
  * AI.java
  * 
- * Student Author: Aung Khant Min
- * Teacher: Ms. Lam
- * Class: ICS3U1
- * Date: Januray 16, 2019
- * Description: 
  * This class contains the methods to make the game bot work. 
  * The bot uses the minimax search algorithm with alpha-beta pruning with a custom evaluator to find the best move. 
  * The evaluation of each position are based on: 
- * 	 how many more pieces the player has over the opponent  
- *   how favorable the player's piece positions are compared with the opponent
+ * how many more pieces the player has over the opponent and
+ * how favorable the player's piece positions are compared with the opponent
  */
 
 import java.util.*;
 
 public class AI {
 
-    private static int NUMPLAYER = 2;
-    private static int NUMROW = 8;
-    private static int NUMCOL = 8;
-    private static int AREA = NUMROW*NUMCOL;
+    private final static int NUMPLAYER = 2; // Number of players
+    private final static int NUMROW = 8; // Number of rows on the board
+    private final static int NUMCOL = 8; // Number of columns on the board
+    private final static int AREA = NUMROW*NUMCOL; // Area of the board
 
-    private static int INDICATOR = -2;
-    private static int EMPTY = -1;
-    private static int PLAYER1 = 0;
-    private static int PLAYER2 = 1;
+    private final static int INDICATOR = -2; // Represents valid-move indicator
+    private final static int EMPTY = -1; // Represents an empty slot
+    private final static int PLAYER1 = 0; // Represents player 1
+    private final static int PLAYER2 = 1; // Represents player 2
 
-    static int nodesExplored = 0;
+    static int nodesExplored = 0; // Keeps track of nodes explored for testing purposes
     static int maximizingPlayer; // The player to make the move
     static int nonMaximizingPlayer; // The other player
 
@@ -44,7 +39,7 @@ public class AI {
        
     	nodesExplored = 0;
 
-    	// Let the player to play be the maximizing player and the other player the minimizing player
+    	  // Let the player to play be the maximizing player and the other player the minimizing player
         maximizingPlayer = player;
         nonMaximizingPlayer = (player + 1) % NUMPLAYER;
 
@@ -54,7 +49,7 @@ public class AI {
         int[] bestMove = null;
 
         // Evaluate each child position and pick the best position
-        for (int[] move: allPossibleMoves(node, player)) { // For every child of the position, 
+        for (int[] move : allPossibleMoves(node, player)) { // For every child of the position, 
             int[][] newNode = boardAfterMove(node, player, move); // Get the board position of the child
 
             int childEval = minimax(newNode, depth - 1, Integer.MIN_VALUE, Integer.MAX_VALUE, false); // Call on minimax to evaluate the child's value
@@ -69,13 +64,13 @@ public class AI {
     }
 
     /*
-     * The recursive minimax function 
+     * The minimax function that will be caleld recursively
      * 
      * @param  node  the position of the board representing the node
-     * @param  depth  the depth of the function call
-     * @param  alpha  the best possible value for the maximizing player so far
-     * @param  beta  the best possible value for the minimizing player so far
-     * @param  max  whether the node is the maximizing player's node or the minimizing player's node
+     * @param  depth  the depth at which the node is at
+     * @param  alpha  the best possible value for the maximizing player so far (alpha value)
+     * @param  beta  the best possible value for the minimizing player so far (beta value)
+     * @param  max  whether the node is the maximizing player's node
      */
     private static int minimax(int[][] node, int depth, int alpha, int beta, boolean max) {
 
@@ -86,7 +81,7 @@ public class AI {
             return evaluatePosition(node);
         }
 
-        int bestEval;
+        int bestEval; // The evaluation to return
 
         if (max) { // If the node is the maximizing player's node, 
             bestEval = Integer.MIN_VALUE; // set to the worst possible value
@@ -125,7 +120,7 @@ public class AI {
     private static int evaluatePosition(int[][] board) {
 
         int pieceDifference = evaluatePieceDifference(board); // The difference in how many pieces each player has
-        int specialPieceDifference = evaluateSpecialPieceDifference(board); // The difference in the additional values of each piece
+        int specialPieceDifference = evaluateSpecialPieceDifference(board); // The difference in the additional values of each piece 
 
         int evaluation = pieceDifference + specialPieceDifference; // The overall evaluation
 
@@ -182,7 +177,11 @@ public class AI {
 
     	// If a certain corner is already taken, the positions around it lose their additional values
     	if (board[0][0] == maximizingPlayer || board[0][0] == nonMaximizingPlayer) { 
-             for (int i = 0; i < 3; i++) {
+             // Set the first row except the corner piece to 0
+             for (int i = 1; i < 3; i++) { 
+               valueBoard[0][i] = 0;
+             }
+             for (int i = 1; i < 3; i++) {
                 for (int j = 0; j < 3; j++) {
                     valueBoard[i][j] = 0;
                 }
@@ -190,7 +189,11 @@ public class AI {
     	}
 
     	if (board[0][7] == maximizingPlayer || board[0][7] == nonMaximizingPlayer) { 
-             for (int i = 0; i < 3; i++) {
+             // Set the first row except the corner piece to 0
+             for (int i = 5; i < 7; i++) { 
+               valueBoard[0][i] = 0;
+             }
+             for (int i = 1; i < 3; i++) {
                 for (int j = 5; j < 8; j++) {
                     valueBoard[i][j] = 0;
                 }
@@ -198,7 +201,11 @@ public class AI {
     	}
 
     	if (board[7][0] == maximizingPlayer || board[7][0] == nonMaximizingPlayer) { 
-             for (int i = 5; i < 8; i++) {
+             // Set the last row except the corner piece to 0
+             for (int i = 1; i < 3; i++) { 
+                valueBoard[7][i] = 0;
+             }
+             for (int i = 5; i < 7; i++) {
                 for (int j = 0; j < 3; j++) {
                     valueBoard[i][j] = 0;
                 }
@@ -206,7 +213,11 @@ public class AI {
     	}
 
     	if (board[7][7] == maximizingPlayer || board[7][7] == nonMaximizingPlayer) { 
-             for (int i = 5; i < 8; i++) {
+             // Set the last row except the corner piece to 0
+             for (int i = 5; i < 7; i++) { 
+                valueBoard[7][i] = 0;
+             }
+             for (int i = 5; i < 7; i++) {
                 for (int j = 5; j < 8; j++) {
                     valueBoard[i][j] = 0;
                 }
@@ -226,8 +237,6 @@ public class AI {
     	return maximizingPlayerSpecial - nonMaximizingPlayerSpecial;
 
     }
-
-
 
     /*
      * Calculates all possible moves from a position
@@ -287,7 +296,7 @@ public class AI {
         // Set enemy player
         int enemy = (curPlayer + 1) % NUMPLAYER;
 
-        // Make a copy of the current board
+        // Make a copy of the passed-in board
         int[][] newBoard = new int[NUMROW][NUMCOL];
         for (int i = 0; i < NUMROW; i++) {
         	for (int j = 0; j < NUMCOL; j++) {
