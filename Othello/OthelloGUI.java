@@ -1,21 +1,10 @@
 /**
  * OthelloGUI.java
  *
- * Student Author: Aung Khant Min
- * Teacher Author: Ms. Lam
- * Class: ICS3U1
- * Date: Januray 16, 2019
- * Description: 
  * Provide the GUI for the Othello game
  * The main features include the play frame, the info frame, and the banner.
  * The info frame includes the AI buttons, the scoreboards of the players, and the next player.
  * Also handles the displaying of the messages for outflanks, wins, ties, losses, and end of match
- * Please refer to README.txt for all the extras
- * The extras in this class: 
- *  AI buttons
- *  The resizibility of the pieces on the game board, and the banner
- *  The valid-move indicators
- *  Extended scoreboard
  */
 
 import javax.swing.*;
