@@ -1,18 +1,12 @@
 /* 
  * Othello.java
- * 
- * Student Author: Aung Khant Min
- * Teacher: Ms. Lam
- * Class: ICS3U1
- * Date: Januray 16, 2019
- * Description: 
+ *
  * This class represents a Othello game. 
  * The rules play like usual except for one change:
  * a valid move is any slot adjacent to an existing piece.
  * The game runs all the logic of the game: 
  *   Outflanks
  *   Detecting the end of a game or match and displaying winner
- * Please refer to README.txt for all the extras
  */
 
 public class Othello {
