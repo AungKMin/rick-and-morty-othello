@@ -4,4 +4,7 @@
  To run the program, run OthelloGUI.java
  Press one of the computer buttons to let the algorithm play for the current player. 
 
+<div style="float:left">
 <img src="images/othello1.PNG">
+<img src="images/othello2.PNG">
+</div>
