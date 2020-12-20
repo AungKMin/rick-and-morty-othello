@@ -5,6 +5,6 @@
  Press one of the computer buttons to let the algorithm play for the current player. 
 
 <div style="float:left">
-<img src="images/Othello1.PNG" style="width:10px">
+<img width="100" src="images/Othello1.PNG">
 <img src="images/othello2.PNG">
 </div>
