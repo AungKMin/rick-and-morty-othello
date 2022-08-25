@@ -3,6 +3,8 @@
  Features an option to let an AI play. This uses minimax search with alpha-beta pruning.
  To run the program, run OthelloGUI.java.
  Press one of the "computer" buttons to let the algorithm make the current move for the current player. 
+ 
+ Demo: https://youtu.be/j_898GmIW24
 
 <div style="float:left">
 <img width="400" src="images/Othello1.PNG">
